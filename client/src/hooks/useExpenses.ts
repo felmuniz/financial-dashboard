@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { Expense, CategorySummary, CATEGORIES } from '@/types/expense';
+import { Expense, CategorySummary, DEFAULT_EXPENSE_CATEGORIES } from '@/types/expense';
 import { nanoid } from 'nanoid';
 
 const STORAGE_KEY = 'financial_dashboard_expenses';
@@ -81,7 +81,8 @@ export function useExpenses() {
 
     const total = getTotalAmount(filtered);
 
-    return CATEGORIES.map(category => ({
+    // Retornar apenas categorias com despesas
+    return Object.keys(totals).map(category => ({
       category,
       total: totals[category] || 0,
       count: counts[category] || 0,

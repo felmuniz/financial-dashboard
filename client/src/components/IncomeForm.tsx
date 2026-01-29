@@ -1,5 +1,5 @@
 /**
- * Componente de formulário para entrada de despesas
+ * Componente de formulário para entrada de ganhos
  * Design: Minimalismo Corporativo - layout compacto, espaçamento generoso, acentos vibrantes
  */
 
@@ -9,19 +9,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DEFAULT_EXPENSE_CATEGORIES } from '@/types/expense';
 import { Plus } from 'lucide-react';
 
-interface ExpenseFormProps {
+interface IncomeFormProps {
   onSubmit: (name: string, amount: number, category: string, date: string) => void;
   isLoading?: boolean;
   categories?: string[];
 }
 
-export function ExpenseForm({ onSubmit, isLoading = false, categories = DEFAULT_EXPENSE_CATEGORIES }: ExpenseFormProps) {
+export function IncomeForm({ onSubmit, isLoading = false, categories = ['Salário', 'Freelance', 'Investimentos', 'Outros'] }: IncomeFormProps) {
   const [name, setName] = useState('');
   const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState(categories[0] || 'Alimentação');
+  const [category, setCategory] = useState(categories[0] || 'Salário');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -43,27 +42,27 @@ export function ExpenseForm({ onSubmit, isLoading = false, categories = DEFAULT_
     // Limpar formulário
     setName('');
     setAmount('');
-      setCategory(categories[0] || 'Alimentação');
+    setCategory(categories[0] || 'Salário');
     setDate(new Date().toISOString().split('T')[0]);
   };
 
   return (
     <Card className="border-border/50 shadow-sm">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-display">Adicionar Despesa</CardTitle>
+        <CardTitle className="text-lg font-display">Adicionar Ganho</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            {/* Nome da Despesa */}
+            {/* Nome do Ganho */}
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium">
+              <Label htmlFor="income-name" className="text-sm font-medium">
                 Descrição
               </Label>
               <Input
-                id="name"
+                id="income-name"
                 type="text"
-                placeholder="Ex: Almoço no restaurante"
+                placeholder="Ex: Salário mensal"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="bg-input border-border/50 text-foreground placeholder:text-muted-foreground"
@@ -72,11 +71,11 @@ export function ExpenseForm({ onSubmit, isLoading = false, categories = DEFAULT_
 
             {/* Valor */}
             <div className="space-y-2">
-              <Label htmlFor="amount" className="text-sm font-medium">
+              <Label htmlFor="income-amount" className="text-sm font-medium">
                 Valor (R$)
               </Label>
               <Input
-                id="amount"
+                id="income-amount"
                 type="number"
                 placeholder="0.00"
                 step="0.01"
@@ -89,7 +88,7 @@ export function ExpenseForm({ onSubmit, isLoading = false, categories = DEFAULT_
 
             {/* Categoria */}
             <div className="space-y-2">
-              <Label htmlFor="category" className="text-sm font-medium">
+              <Label htmlFor="income-category" className="text-sm font-medium">
                 Categoria
               </Label>
               <Select value={category} onValueChange={setCategory}>
@@ -108,11 +107,11 @@ export function ExpenseForm({ onSubmit, isLoading = false, categories = DEFAULT_
 
             {/* Data */}
             <div className="space-y-2">
-              <Label htmlFor="date" className="text-sm font-medium">
+              <Label htmlFor="income-date" className="text-sm font-medium">
                 Data
               </Label>
               <Input
-                id="date"
+                id="income-date"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
@@ -126,10 +125,10 @@ export function ExpenseForm({ onSubmit, isLoading = false, categories = DEFAULT_
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-medium transition-colors duration-200 py-2 sm:py-2 text-base sm:text-sm h-auto sm:h-10 rounded-lg"
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-medium transition-colors duration-200 py-2 sm:py-2 text-base sm:text-sm h-auto sm:h-10 rounded-lg"
             >
               <Plus className="w-5 h-5 sm:w-4 sm:h-4 mr-2" />
-              Adicionar Despesa
+              Adicionar Ganho
             </Button>
           </div>
         </form>
