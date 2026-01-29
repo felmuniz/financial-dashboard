@@ -8,6 +8,7 @@ import { ExpenseForm } from '@/components/ExpenseForm';
 import { ExpenseTable } from '@/components/ExpenseTable';
 import { CategorySummary } from '@/components/CategorySummary';
 import { TotalCard } from '@/components/TotalCard';
+import { MonthFilter } from '@/components/MonthFilter';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 
@@ -20,6 +21,9 @@ export default function Home() {
     getCategorySummary,
     exportToCSV,
     isLoaded,
+    selectedMonth,
+    setSelectedMonth,
+    getFilteredExpenses,
   } = useExpenses();
 
   if (!isLoaded) {
@@ -30,8 +34,9 @@ export default function Home() {
     );
   }
 
-  const total = getTotalAmount();
-  const categorySummary = getCategorySummary();
+  const filteredExpenses = getFilteredExpenses();
+  const total = getTotalAmount(true);
+  const categorySummary = getCategorySummary(true);
 
   return (
     <div className="min-h-screen bg-background">
@@ -64,6 +69,9 @@ export default function Home() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column: Form and Table */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Month Filter */}
+            <MonthFilter selectedMonth={selectedMonth} onMonthChange={setSelectedMonth} />
+
             {/* Form */}
             <ExpenseForm onSubmit={addExpense} />
 
@@ -71,12 +79,12 @@ export default function Home() {
             <TotalCard total={total} />
 
             {/* Table */}
-            <ExpenseTable expenses={expenses} onDelete={deleteExpense} />
+            <ExpenseTable expenses={filteredExpenses} onDelete={deleteExpense} />
           </div>
 
           {/* Right Column: Summary */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24">
+            <div className="sticky top-32">
               <CategorySummary summary={categorySummary} total={total} />
             </div>
           </div>

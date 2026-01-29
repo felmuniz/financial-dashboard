@@ -12,6 +12,9 @@ const STORAGE_KEY = 'financial_dashboard_expenses';
 export function useExpenses() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState<string>(
+    new Date().toISOString().slice(0, 7) // YYYY-MM format
+  );
 
   // Carregar despesas do localStorage ao montar
   useEffect(() => {
@@ -57,20 +60,26 @@ export function useExpenses() {
     setExpenses(expenses.filter(exp => exp.id !== id));
   };
 
-  const getTotalAmount = (): number => {
-    return expenses.reduce((sum, exp) => sum + exp.amount, 0);
+  const getFilteredExpenses = (): Expense[] => {
+    return expenses.filter(exp => exp.date.startsWith(selectedMonth));
   };
 
-  const getCategorySummary = (): CategorySummary[] => {
+  const getTotalAmount = (filtered: boolean = false): number => {
+    const expensesToSum = filtered ? getFilteredExpenses() : expenses;
+    return expensesToSum.reduce((sum, exp) => sum + exp.amount, 0);
+  };
+
+  const getCategorySummary = (filtered: boolean = false): CategorySummary[] => {
+    const expensesToSummarize = filtered ? getFilteredExpenses() : expenses;
     const totals: Record<string, number> = {};
     const counts: Record<string, number> = {};
 
-    expenses.forEach(exp => {
+    expensesToSummarize.forEach(exp => {
       totals[exp.category] = (totals[exp.category] || 0) + exp.amount;
       counts[exp.category] = (counts[exp.category] || 0) + 1;
     });
 
-    const total = getTotalAmount();
+    const total = getTotalAmount(filtered);
 
     return CATEGORIES.map(category => ({
       category,
@@ -81,13 +90,14 @@ export function useExpenses() {
   };
 
   const exportToCSV = () => {
-    if (expenses.length === 0) {
-      alert('Nenhuma despesa para exportar');
+    const expensesToExport = getFilteredExpenses();
+    if (expensesToExport.length === 0) {
+      alert('Nenhuma despesa para exportar neste período');
       return;
     }
 
     const headers = ['Data', 'Descrição', 'Categoria', 'Valor'];
-    const rows = expenses
+    const rows = expensesToExport
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .map(exp => [
         exp.date,
@@ -100,14 +110,14 @@ export function useExpenses() {
       headers.join(','),
       ...rows.map(row => row.map(cell => `"${cell}"`).join(',')),
       '',
-      ['TOTAL', '', '', getTotalAmount().toFixed(2)].join(','),
+      ['TOTAL', '', '', getTotalAmount(true).toFixed(2)].join(','),
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `despesas_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `despesas_${selectedMonth}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -122,5 +132,8 @@ export function useExpenses() {
     getCategorySummary,
     exportToCSV,
     isLoaded,
+    selectedMonth,
+    setSelectedMonth,
+    getFilteredExpenses,
   };
 }
