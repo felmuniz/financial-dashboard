@@ -10,12 +10,12 @@ import { getFirestore } from 'firebase/firestore';
 // PASSO 1: Substitua estas chaves pelas suas do Firebase Console
 // Veja FIREBASE_SETUP.md para instruções detalhadas
 const firebaseConfig = {
-  apiKey: "COLE_SUA_API_KEY_AQUI",
-  authDomain: "COLE_SEU_AUTH_DOMAIN_AQUI",
-  projectId: "COLE_SEU_PROJECT_ID_AQUI",
-  storageBucket: "COLE_SEU_STORAGE_BUCKET_AQUI",
-  messagingSenderId: "COLE_SEU_MESSAGING_SENDER_ID_AQUI",
-  appId: "COLE_SEU_APP_ID_AQUI"
+  apiKey: "AIzaSyDpe_PErsrG9T5vmobrH2rk4EE_YNZUwwg",
+  authDomain: "dashboard-financeiro-a49af.firebaseapp.com",
+  projectId: "dashboard-financeiro-a49af",
+  storageBucket: "dashboard-financeiro-a49af.firebasestorage.app",
+  messagingSenderId: "29293037112",
+  appId: "1:29293037112:web:230d8b418c785bf19948cd"
 };
 
 // Inicializar Firebase
