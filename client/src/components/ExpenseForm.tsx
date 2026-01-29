@@ -53,7 +53,7 @@ export function ExpenseForm({ onSubmit, isLoading = false }: ExpenseFormProps) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Nome da Despesa */}
             <div className="space-y-2">
               <Label htmlFor="name" className="text-sm font-medium">
@@ -125,9 +125,9 @@ export function ExpenseForm({ onSubmit, isLoading = false }: ExpenseFormProps) {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-medium transition-colors duration-200"
+              className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-medium transition-colors duration-200 py-2 sm:py-2 text-base sm:text-sm h-auto sm:h-10 rounded-lg"
             >
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-5 h-5 sm:w-4 sm:h-4 mr-2" />
               Adicionar Despesa
             </Button>
           </div>

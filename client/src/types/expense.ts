@@ -11,7 +11,8 @@ export interface Expense {
   amount: number;
   category: ExpenseCategory;
   date: string; // ISO date string (YYYY-MM-DD)
-  createdAt: number; // timestamp para ordenação
+  userId?: string; // ID do usuário Firebase
+  createdAt?: number; // timestamp para ordenação
 }
 
 export interface CategorySummary {

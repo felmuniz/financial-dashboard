@@ -7,11 +7,15 @@ import { CategorySummary as CategorySummaryType, CATEGORY_COLORS } from '@/types
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface CategorySummaryProps {
-  summary: CategorySummaryType[];
-  total: number;
+  summary: Array<{
+    category: string;
+    amount: number;
+    count: number;
+    percentage: number;
+  }>;
 }
 
-export function CategorySummary({ summary, total }: CategorySummaryProps) {
+export function CategorySummary({ summary }: CategorySummaryProps) {
   if (summary.length === 0) {
     return (
       <Card className="border-border/50 shadow-sm">
@@ -34,7 +38,7 @@ export function CategorySummary({ summary, total }: CategorySummaryProps) {
           {summary.map((item) => (
             <div key={item.category} className="space-y-1">
               <div className="flex items-center justify-between">
-                <span className={`text-sm font-medium ${CATEGORY_COLORS[item.category]}`}>
+                <span className={`text-sm font-medium ${CATEGORY_COLORS[item.category as keyof typeof CATEGORY_COLORS] || ''}`}>
                   {item.category}
                 </span>
                 <span className="text-sm text-muted-foreground">
@@ -52,7 +56,7 @@ export function CategorySummary({ summary, total }: CategorySummaryProps) {
                   {item.count} {item.count === 1 ? 'item' : 'itens'}
                 </span>
                 <span className="text-sm font-display text-accent">
-                  R$ {item.total.toFixed(2)}
+                  R$ {item.amount.toFixed(2)}
                 </span>
               </div>
             </div>
