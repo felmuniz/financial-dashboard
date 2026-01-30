@@ -29,6 +29,10 @@ function Router() {
 
 function App() {
   console.log('Dashboard app loaded - v1.0.1 with Dashboard tab fix');
+  // TEST: Add visible indicator
+  if (typeof window !== 'undefined') {
+    console.log('VERCEL BUILD TEST - v1.0.1');
+  }
   return (
     <ErrorBoundary>
       <AuthProvider>
