@@ -5,7 +5,6 @@
 
 import { useEffect, useState } from 'react';
 import { Income, CategorySummary, DEFAULT_INCOME_CATEGORIES } from '@/types/expense';
-import { nanoid } from 'nanoid';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, deleteDoc, doc, onSnapshot, query, where, Timestamp } from 'firebase/firestore';
@@ -15,7 +14,7 @@ export function useIncomes() {
   const [incomes, setIncomes] = useState<Income[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState<string>(
-    new Date().toISOString().slice(0, 7) // YYYY-MM format
+    new Date().toISOString().slice(0, 7)
   );
 
   // Sincronizar ganhos do Firestore
@@ -26,24 +25,32 @@ export function useIncomes() {
       return;
     }
 
+    setIsLoaded(false);
     const q = query(collection(db, 'incomes'), where('userId', '==', user.uid));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const loadedIncomes: Income[] = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        loadedIncomes.push({
-          id: doc.id,
-          name: data.name,
-          amount: data.amount,
-          category: data.category,
-          date: data.date,
-          userId: data.userId,
-          createdAt: data.createdAt,
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const loadedIncomes: Income[] = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          loadedIncomes.push({
+            id: doc.id,
+            name: data.name || '',
+            amount: Number(data.amount) || 0,
+            category: data.category || 'Outros',
+            date: data.date || new Date().toISOString().split('T')[0],
+            userId: data.userId,
+            createdAt: data.createdAt?.toMillis?.() || Date.now(),
+          });
         });
-      });
-      setIncomes(loadedIncomes);
-      setIsLoaded(true);
-    });
+        setIncomes(loadedIncomes);
+        setIsLoaded(true);
+      },
+      (error) => {
+        console.error('Erro ao carregar ganhos:', error);
+        setIsLoaded(true);
+      }
+    );
 
     return () => unsubscribe();
   }, [user]);
@@ -53,35 +60,40 @@ export function useIncomes() {
     amount: number,
     category: string,
     date: string
-  ) => {
-    if (!user) return null;
+  ): Promise<Income | null> => {
+    if (!user) {
+      console.error('Usuário não autenticado');
+      return null;
+    }
 
     try {
       const docRef = await addDoc(collection(db, 'incomes'), {
-        name,
-        amount,
-        category,
-        date,
+        name: name.trim(),
+        amount: Number(amount),
+        category: category || 'Outros',
+        date: date || new Date().toISOString().split('T')[0],
         userId: user.uid,
         createdAt: Timestamp.now(),
       });
 
-      return {
+      const newIncome: Income = {
         id: docRef.id,
-        name,
-        amount,
-        category,
-        date,
+        name: name.trim(),
+        amount: Number(amount),
+        category: category || 'Outros',
+        date: date || new Date().toISOString().split('T')[0],
         userId: user.uid,
         createdAt: Date.now(),
       };
+
+      return newIncome;
     } catch (error) {
       console.error('Erro ao adicionar ganho:', error);
       return null;
     }
   };
 
-  const deleteIncome = async (id: string) => {
+  const deleteIncome = async (id: string): Promise<void> => {
     try {
       await deleteDoc(doc(db, 'incomes', id));
     } catch (error) {
@@ -95,7 +107,7 @@ export function useIncomes() {
 
   const getTotalAmount = (filtered: boolean = false): number => {
     const incomesToSum = filtered ? getFilteredIncomes() : incomes;
-    return incomesToSum.reduce((sum, inc) => sum + inc.amount, 0);
+    return incomesToSum.reduce((sum, inc) => sum + (Number(inc.amount) || 0), 0);
   };
 
   const getCategorySummary = (filtered: boolean = false): CategorySummary[] => {
@@ -104,18 +116,23 @@ export function useIncomes() {
     const counts: Record<string, number> = {};
 
     incomesToSummarize.forEach(inc => {
-      totals[inc.category] = (totals[inc.category] || 0) + inc.amount;
-      counts[inc.category] = (counts[inc.category] || 0) + 1;
+      const category = inc.category || 'Outros';
+      const amount = Number(inc.amount) || 0;
+      totals[category] = (totals[category] || 0) + amount;
+      counts[category] = (counts[category] || 0) + 1;
     });
 
     const total = getTotalAmount(filtered);
 
-    return Object.keys(totals).map(category => ({
-      category,
-      total: totals[category] || 0,
-      count: counts[category] || 0,
-      percentage: total > 0 ? (totals[category] || 0) / total * 100 : 0,
-    })).filter(item => item.total > 0);
+    return Object.keys(totals)
+      .map(category => ({
+        category,
+        total: totals[category] || 0,
+        count: counts[category] || 0,
+        percentage: total > 0 ? (totals[category] || 0) / total * 100 : 0,
+      }))
+      .filter(item => item.total > 0)
+      .sort((a, b) => b.total - a.total);
   };
 
   return {

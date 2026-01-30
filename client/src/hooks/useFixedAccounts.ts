@@ -22,25 +22,33 @@ export function useFixedAccounts() {
       return;
     }
 
+    setIsLoaded(false);
     const q = query(collection(db, 'fixedAccounts'), where('userId', '==', user.uid));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const loadedAccounts: FixedAccount[] = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        loadedAccounts.push({
-          id: doc.id,
-          name: data.name,
-          amount: data.amount,
-          category: data.category,
-          dueDate: data.dueDate,
-          isActive: data.isActive,
-          userId: data.userId,
-          createdAt: data.createdAt,
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const loadedAccounts: FixedAccount[] = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          loadedAccounts.push({
+            id: doc.id,
+            name: data.name || '',
+            amount: Number(data.amount) || 0,
+            category: data.category || 'Outros',
+            dueDate: Number(data.dueDate) || 1,
+            isActive: data.isActive !== false,
+            userId: data.userId,
+            createdAt: data.createdAt?.toMillis?.() || Date.now(),
+          });
         });
-      });
-      setFixedAccounts(loadedAccounts);
-      setIsLoaded(true);
-    });
+        setFixedAccounts(loadedAccounts);
+        setIsLoaded(true);
+      },
+      (error) => {
+        console.error('Erro ao carregar contas fixas:', error);
+        setIsLoaded(true);
+      }
+    );
 
     return () => unsubscribe();
   }, [user]);
@@ -50,15 +58,15 @@ export function useFixedAccounts() {
     amount: number,
     category: string,
     dueDate: number
-  ) => {
+  ): Promise<FixedAccount | null> => {
     if (!user) return null;
 
     try {
       const docRef = await addDoc(collection(db, 'fixedAccounts'), {
-        name,
-        amount,
-        category,
-        dueDate,
+        name: name.trim(),
+        amount: Number(amount),
+        category: category || 'Outros',
+        dueDate: Number(dueDate) || 1,
         isActive: true,
         userId: user.uid,
         createdAt: Timestamp.now(),
@@ -66,10 +74,10 @@ export function useFixedAccounts() {
 
       return {
         id: docRef.id,
-        name,
-        amount,
-        category,
-        dueDate,
+        name: name.trim(),
+        amount: Number(amount),
+        category: category || 'Outros',
+        dueDate: Number(dueDate) || 1,
         isActive: true,
         userId: user.uid,
         createdAt: Date.now(),
@@ -99,16 +107,17 @@ export function useFixedAccounts() {
   const getTotalAmount = (): number => {
     return fixedAccounts
       .filter(acc => acc.isActive)
-      .reduce((sum, acc) => sum + acc.amount, 0);
+      .reduce((sum, acc) => sum + (Number(acc.amount) || 0), 0);
   };
 
   const getAccountsByCategory = (): Record<string, FixedAccount[]> => {
     const grouped: Record<string, FixedAccount[]> = {};
     fixedAccounts.filter(acc => acc.isActive).forEach(acc => {
-      if (!grouped[acc.category]) {
-        grouped[acc.category] = [];
+      const category = acc.category || 'Outros';
+      if (!grouped[category]) {
+        grouped[category] = [];
       }
-      grouped[acc.category].push(acc);
+      grouped[category].push(acc);
     });
     return grouped;
   };

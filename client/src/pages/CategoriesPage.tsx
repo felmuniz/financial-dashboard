@@ -36,15 +36,18 @@ export default function CategoriesPage() {
     }
 
     setIsSubmitting(true);
-    const result = await addCategory(newCategoryName.trim(), newCategoryType, newCategoryColor);
-    setIsSubmitting(false);
-
-    if (result) {
-      setNewCategoryName('');
-      setNewCategoryType('expense');
-      setNewCategoryColor('emerald');
-    } else {
-      alert('Erro ao adicionar categoria. Verifique se o nome já existe.');
+    try {
+      const result = await addCategory(newCategoryName.trim(), newCategoryType, newCategoryColor);
+      if (result) {
+        setNewCategoryName('');
+        setNewCategoryType('expense');
+        setNewCategoryColor('emerald');
+      }
+    } catch (error: any) {
+      const errorMessage = error?.message || 'Erro ao adicionar categoria. Verifique se o nome já existe.';
+      alert(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 

@@ -22,23 +22,31 @@ export function useCustomCategories() {
       return;
     }
 
+    setIsLoaded(false);
     const q = query(collection(db, 'customCategories'), where('userId', '==', user.uid));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const loadedCategories: CustomCategory[] = [];
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        loadedCategories.push({
-          id: doc.id,
-          name: data.name,
-          type: data.type,
-          color: data.color,
-          userId: data.userId,
-          createdAt: data.createdAt,
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const loadedCategories: CustomCategory[] = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          loadedCategories.push({
+            id: doc.id,
+            name: data.name,
+            type: data.type,
+            color: data.color,
+            userId: data.userId,
+            createdAt: data.createdAt,
+          });
         });
-      });
-      setCategories(loadedCategories);
-      setIsLoaded(true);
-    });
+        setCategories(loadedCategories);
+        setIsLoaded(true);
+      },
+      (error) => {
+        console.error('Erro ao carregar categorias:', error);
+        setIsLoaded(true);
+      }
+    );
 
     return () => unsubscribe();
   }, [user]);
@@ -48,17 +56,30 @@ export function useCustomCategories() {
     type: 'expense' | 'income' | 'fixed',
     color: string = 'emerald'
   ) => {
-    if (!user) return null;
+    if (!user) {
+      console.error('Usuário não autenticado');
+      return null;
+    }
+
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      console.error('Nome da categoria vazio');
+      return null;
+    }
 
     // Validar nome único (apenas categorias personalizadas do mesmo tipo)
-    if (categories.some(cat => cat.type === type && cat.name.toLowerCase() === name.toLowerCase())) {
+    const isDuplicate = categories.some(
+      cat => cat.type === type && cat.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+
+    if (isDuplicate) {
       console.error('Categoria com este nome já existe neste tipo');
-      return null;
+      throw new Error('Categoria com este nome já existe neste tipo');
     }
 
     try {
       const docRef = await addDoc(collection(db, 'customCategories'), {
-        name,
+        name: trimmedName,
         type,
         color,
         userId: user.uid,
@@ -67,7 +88,7 @@ export function useCustomCategories() {
 
       return {
         id: docRef.id,
-        name,
+        name: trimmedName,
         type,
         color,
         userId: user.uid,
@@ -75,7 +96,7 @@ export function useCustomCategories() {
       };
     } catch (error) {
       console.error('Erro ao adicionar categoria:', error);
-      return null;
+      throw error;
     }
   };
 
