@@ -28,6 +28,7 @@ function Router() {
 // - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
 
 function App() {
+  console.log('Dashboard app loaded - v1.0.1 with Dashboard tab fix');
   return (
     <ErrorBoundary>
       <AuthProvider>
