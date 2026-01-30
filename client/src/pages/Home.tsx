@@ -169,10 +169,14 @@ export default function Home() {
               Dashboard
             </Button>
             <Button
-              variant={activeTab === 'expenses' ? 'default' : 'ghost'}
+              variant="ghost"
               size="sm"
               onClick={() => setActiveTab('expenses')}
-              className="whitespace-nowrap"
+              className={`whitespace-nowrap ${
+                activeTab === 'expenses'
+                  ? 'bg-red-600 hover:bg-red-700 text-white'
+                  : 'text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30'
+              }`}
             >
               <BarChart3 className="w-4 h-4 mr-2" />
               Despesas
