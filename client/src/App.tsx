@@ -14,7 +14,7 @@ function Router() {
   return (
     <Switch>
       <Route path={"/login"} component={Login} />
-      <Route path={"//"} component={ProtectedRoute} />
+      <Route path={"/"} component={ProtectedRoute} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />
