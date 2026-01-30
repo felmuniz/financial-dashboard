@@ -50,9 +50,9 @@ export function useCustomCategories() {
   ) => {
     if (!user) return null;
 
-    // Validar nome único
-    if (categories.some(cat => cat.name.toLowerCase() === name.toLowerCase())) {
-      console.error('Categoria com este nome já existe');
+    // Validar nome único (apenas categorias personalizadas do mesmo tipo)
+    if (categories.some(cat => cat.type === type && cat.name.toLowerCase() === name.toLowerCase())) {
+      console.error('Categoria com este nome já existe neste tipo');
       return null;
     }
 
