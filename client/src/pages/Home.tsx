@@ -18,13 +18,14 @@ import { toast } from 'sonner';
 import IncomesPage from './IncomesPage';
 import FixedAccountsPage from './FixedAccountsPage';
 import CategoriesPage from './CategoriesPage';
+import DashboardPage from './DashboardPage';
 
 export default function Home() {
   const { user, logout } = useAuth();
   const { expenses, loading, error, addExpense, deleteExpense, getTotalAmount, getCategorySummary } = useFirestoreExpenses();
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
   const [, navigate] = useLocation();
-  const [activeTab, setActiveTab] = useState<'expenses' | 'incomes' | 'fixed' | 'categories'>('expenses');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'expenses' | 'incomes' | 'fixed' | 'categories'>('dashboard');
 
   // Filtrar despesas por mês
   const filteredExpenses = useMemo(() => {
@@ -159,6 +160,15 @@ export default function Home() {
         <div className="border-t border-border/50 bg-background/50 backdrop-blur-sm">
           <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto gap-2 py-2">
             <Button
+              variant={activeTab === 'dashboard' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setActiveTab('dashboard')}
+              className="whitespace-nowrap"
+            >
+              <BarChart3 className="w-4 h-4 mr-2" />
+              Dashboard
+            </Button>
+            <Button
               variant={activeTab === 'expenses' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setActiveTab('expenses')}
@@ -200,6 +210,11 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        {/* Aba de Dashboard */}
+        {activeTab === 'dashboard' && (
+          <DashboardPage />
+        )}
+
         {/* Aba de Despesas */}
         {activeTab === 'expenses' && (
           <>
