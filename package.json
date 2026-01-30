@@ -1,6 +1,7 @@
 {
   "name": "financial_dashboard",
-  "version": "1.0.0",
+  "_rebuild_trigger": "2026-01-30-dashboard-fix",
+  "version": "1.0.1",
   "type": "module",
   "license": "MIT",
   "scripts": {
