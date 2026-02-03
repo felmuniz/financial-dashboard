@@ -95,12 +95,18 @@ export function IncomeForm({ onSubmit, isLoading = false, categories = ['Salári
                 <SelectTrigger className="bg-input border-border/50 text-foreground">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-card border-border/50">
-                  {categories.map((cat: string) => (
-                    <SelectItem key={cat} value={cat} className="text-foreground">
-                      {cat}
+                <SelectContent className="bg-popover border-border text-foreground">
+                  {categories && categories.length > 0 ? (
+                    categories.map((cat: string) => (
+                      <SelectItem key={cat} value={cat} className="text-foreground cursor-pointer hover:bg-accent">
+                        {cat}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="Salário" disabled>
+                      Nenhuma categoria disponível
                     </SelectItem>
-                  ))}
+                  )}
                 </SelectContent>
               </Select>
             </div>
